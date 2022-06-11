@@ -1,4 +1,5 @@
 import random
+from tkinter import Menu
 from openpyxl import Workbook, load_workbook
 
 def configuracoes():
@@ -29,10 +30,27 @@ def alterarConfiguracao():
     except:
         wb = Workbook()
         config = wb.create_sheet('configurações')
-    dificuldade = input('Qual o nivel de dificuldade(1/2/3): ')
-    linhas = input('Quantidade de linhas: ')
-    colunas = input('Quantidade de colunas: ')
 
+    while True:
+        print('''Níveis de dificuldade:
+        1 - Fácil
+        2 - Médio
+        3 - Difícil''')
+        try:
+            dificuldade = int(input('Qual o nível de dificuldade: '))
+            linhas = int(input('Quantidade de linhas: '))
+            colunas = int(input('Quantidade de colunas: '))
+        except:
+            print('Por favor preencha somente com numeros')
+            alterarConfiguracao()
+        
+        if dificuldade >= 1 and dificuldade <=3 and linhas >= 3 and colunas >= 3:
+            print('CONFIGURAÇÕES SALVAS COM SUCESSO\n')
+            break
+        else:
+            print('''\033[1mConfigurações Minimas:\nDificuldade tem que ser maior de 1\nQuantidade de linhas e colunas tem que ser maior que 3\033[0m\n''')
+
+    #utilizando esse metodo para 'forçar' os locais exatos
     config.cell(column=1, row=1, value='Linhas')
     config.cell(column=2, row=1, value=linhas)
     config.cell(column=1, row=2, value='Colunas')
@@ -40,6 +58,9 @@ def alterarConfiguracao():
     config.cell(column=1, row=3, value='Dificuldade')
     config.cell(column=2, row=3, value=dificuldade)
     wb.save('banco.xlsx')
+    
+ 
+    menu()
 
 def bombinhas():
     bombas = []
@@ -49,7 +70,7 @@ def bombinhas():
     if dificuldade == 1:
         qtdBombas = int(totalCasas*0.15)  # int => para 'truncar' o numero
     elif dificuldade == 2:
-        qtdBombas = int(totalCasas*0.25)
+        qtdBombas = int(totalCasas*0.30)
     else:
         qtdBombas = int(totalCasas*0.50)
 
@@ -66,19 +87,19 @@ def bombinhas():
 def calcularAdjacente(matriz):
     dificuldade, qtdLinha, qtdColuna = configuracoes()
 
-    for a in range(0, qtdLinha):
-        for b in range(0, qtdColuna):
-            if matriz[a][b] == '-1': 
+    for linha in range(0, qtdLinha):
+        for coluna in range(0, qtdColuna):
+            if matriz[linha][coluna] == '-1': 
                 continue
-            cont_minas_adj = 0
+            cont = 0
                 
-            for c in range(a-1 if a>0 else 0, a+2 if a<(qtdLinha-1) else qtdLinha):
-                for d in range(b-1 if b>0 else 0, b+2 if b<(qtdColuna-1) else qtdColuna):
-                    #print(c, d)
-                    if matriz[c][d] == '-1': 
-                        cont_minas_adj += 1
+            for i in range(linha-1 if linha>0 else 0, linha+2 if linha<(qtdLinha-1) else qtdLinha):
+                for j in range(coluna-1 if coluna>0 else 0, coluna+2 if coluna<(qtdColuna-1) else qtdColuna):
+                    
+                    if matriz[i][j] == '-1': 
+                        cont += 1
 
-            matriz[a][b] = str(cont_minas_adj)
+            matriz[linha][coluna] = str(cont)
         #print(matriz)
     return matriz
 
@@ -113,30 +134,34 @@ def criarTabuleiro(qtdLinha, qtdColuna):
     for i in range(1, qtdLinha+1):
         jogo = []
         for j in range(1, qtdColuna+1):
+            print('{:^5}'.format('[ ]'), end='')
             if cont in bombas:
                 jogo.append('-1')
             elif cont not in bombas:
                 jogo.append('0')
             cont += 1
+        print()
         game.append(jogo)
     #print(game)
 
     gravarTabuleiro(calcularAdjacente(game))
 
-def verificarJogada():
+def jogar():
     wb = load_workbook(filename='banco.xlsx', read_only=False)
     jogo = wb['jogo']
     maxLinha = jogo.max_row
     maxColuna = jogo.max_column
-    
+
     gameOver = False
     ganhou = False
     jogadas = []
     
     dificuldade, qtdLinha, qtdColuna = configuracoes()
+    
     while True:
-        n1 = int(input('linha: '))
-        n2 = int(input('coluna: '))
+        print('Insira as posições desejadas:')
+        n1 = int(input('Linha: '))
+        n2 = int(input('Coluna: '))
         # teste de jogadas
 
         if jogo.cell(column=n2, row=n1) not in jogadas:
@@ -165,14 +190,57 @@ def verificarJogada():
 
         if gameOver == True:
             print('Game Over!!!')
-            break
-        if ganhou == True:
+            wb.save('banco.xlsx')
+            
+        elif ganhou == True:
             print('Você Ganhou')
+            wb.save('banco.xlsx')
+            
+  
+        if ganhou == True or gameOver == True:
+            escolha = input('Deseja Jogar Novamente?(S or N): ')
+            if escolha.lower() == 's':
+                print()
+                menu()
             break
 
-alterarConfiguracao()
 
-dificuldade, linhas, colunas = configuracoes()
-#criarTabuleiro(linhas, colunas)
-criarTabuleiro(linhas,colunas)
-#verificarJogada()
+
+def bemVindo():
+    print('''
+         \|/        
+        .-*-        
+       / /|\        
+      _L_              ____   U _____ u   __  __     __     __                   _   _       ____       U  ___ u
+    ,°   °.         U | __°)u \| ___°|/ U|° \/ °|u   \ \   /°/u       ___       | \ |°|     |  _°\       \/°_ \/ 
+(\ /  O O  \ /)      \|  _ \/  |  _|°   \| |\/| |/    \ \ / //       |_°_|     <|  \| |>   /| | | |      | | | | 
+ \|    _    |/        | |_) |  | |___    | |  | |     /\ V /_,-.      | |      U| |\  |u   U| |_| |\ .-,_| |_| |
+   \  (_)  /          |____/   |_____|   |_|  |_|    U  \_/-(_/     U/| |\ u    |_| \_|     |____/ u  \_)-\___/
+   _/.___,\_         _|| \ \_   <<   >>  <<,-,,-.       //        .-,_|___|_,-.  ||   \ \,-.   |||_         \ \ 
+  (_/ alf \_)       (__) (__) (__) (__)  (./  \.)     (__)        \_)-° °-(_/   (_°)  (_/   (__)_)         (__)
+=====================================================================================================================
+                               Bem vindo ao campo minado do Paulo e da Narumi =)
+''')
+
+def menu():
+    dificuldade, linhas, colunas = configuracoes()
+
+    print('''escolha uma das opções abaixo
+    1 - JOGO
+    2 - CONFIGURAÇÕES
+    3 - SAIR''')
+    n = input('Escolha: ')
+
+    if n == '1': 
+        criarTabuleiro(linhas,colunas)
+        jogar()
+    elif n == '2':
+        alterarConfiguracao()
+    elif n == '3':
+        print('sair')
+    else:
+        print('Opção inválida\n')
+        menu()
+
+bemVindo()
+menu()
