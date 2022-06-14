@@ -1,6 +1,17 @@
+#Autores: Gabriela Goto, Paulo Henrique
+#Data: 05/06/2022
+#Quarta Avaliação
+
 import random
-from tkinter import Menu
 from openpyxl import Workbook, load_workbook
+
+def deletarSheet():
+    wb = load_workbook(filename='banco.xlsx')
+    listaSheet = wb.sheetnames
+    #print(listaSheet)
+    if 'Sheet' in listaSheet:
+        wb.remove(wb['Sheet'])
+    wb.save('banco.xlsx')
 
 def configuracoes():
     try:
@@ -9,6 +20,7 @@ def configuracoes():
     except: #CASO NÃO TENHA O ARQUIVO ELE CRIA UMA CONFIGURAÇÃO BASICA
         wb = Workbook()
         config = wb.create_sheet('configurações')
+        
         config.cell(column=1, row=1, value='Linhas')
         config.cell(column=2, row=1, value=3)
         config.cell(column=1, row=2, value='Colunas')
@@ -19,9 +31,11 @@ def configuracoes():
     dificuldade = config.cell(column=2, row=3).value
     linhas = config.cell(column=2, row=1).value
     colunas = config.cell(column=2, row=2).value
+    deletarSheet()
     wb.save('banco.xlsx')
 
     return int(dificuldade), int(linhas), int(colunas)
+
 
 def alterarConfiguracao():
     try:
@@ -29,7 +43,8 @@ def alterarConfiguracao():
         config = wb['configurações']
     except:
         wb = Workbook()
-        config = wb.create_sheet('configurações')
+        config = wb.create_sheet('configurações',1)
+
 
     while True:
         print('''Níveis de dificuldade:
@@ -58,7 +73,7 @@ def alterarConfiguracao():
     config.cell(column=1, row=3, value='Dificuldade')
     config.cell(column=2, row=3, value=dificuldade)
     wb.save('banco.xlsx')
-    
+    deletarSheet()
  
     menu()
 
@@ -113,7 +128,7 @@ def gravarTabuleiro(jogo):
         abaJogo = wb['jogo']
     
     except:
-        abaJogo = wb.create_sheet('jogo')
+        abaJogo = wb.create_sheet('jogo',2)
     #resolvendo o problema de quando muda as config para um tabuleiro menor
     abaJogo.delete_rows(1, abaJogo.max_row)
 
@@ -121,11 +136,11 @@ def gravarTabuleiro(jogo):
     for i in range(1, len(jogo)+1):
         for j in range(1, len(jogo[0])+1):
             abaJogo.cell(row=i, column=j, value=jogo[i-1][j-1])
-
+    deletarSheet()
     wb.save('banco.xlsx')
 
 def criarTabuleiro(qtdLinha, qtdColuna):
-   
+    deletarSheet()
     cont = 1
     bombas = bombinhas()
     game = []
@@ -163,8 +178,12 @@ def jogar():
         n1 = int(input('Linha: '))
         n2 = int(input('Coluna: '))
         # teste de jogadas
+        
+        if n1 > maxLinha or n2 > maxColuna:
+            print('Jogada maior que o tabuleiro, tente novamente')
+            print('Tamanho atual: {} linhas e {} colunas'.format(maxLinha, maxColuna))
 
-        if jogo.cell(column=n2, row=n1) not in jogadas:
+        elif jogo.cell(column=n2, row=n1) not in jogadas:
             jogadas.append(jogo.cell(column=n2, row=n1))
             for i in range(1, maxLinha+1):
                 for j in range(1, maxColuna + 1):
