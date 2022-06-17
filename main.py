@@ -5,13 +5,7 @@
 import random
 from openpyxl import Workbook, load_workbook
 
-def deletarSheet():
-    wb = load_workbook(filename='banco.xlsx')
-    listaSheet = wb.sheetnames
-    #print(listaSheet)
-    if 'Sheet' in listaSheet:
-        wb.remove(wb['Sheet'])
-    wb.save('banco.xlsx')
+
 
 def configuracoes():
     try:
@@ -31,10 +25,11 @@ def configuracoes():
     dificuldade = config.cell(column=2, row=3).value
     linhas = config.cell(column=2, row=1).value
     colunas = config.cell(column=2, row=2).value
-    deletarSheet()
+    
     wb.save('banco.xlsx')
 
     return int(dificuldade), int(linhas), int(colunas)
+
 
 
 def alterarConfiguracao():
@@ -73,9 +68,11 @@ def alterarConfiguracao():
     config.cell(column=1, row=3, value='Dificuldade')
     config.cell(column=2, row=3, value=dificuldade)
     wb.save('banco.xlsx')
-    deletarSheet()
+    
  
     menu()
+
+
 
 def bombinhas():
     bombas = []
@@ -136,11 +133,11 @@ def gravarTabuleiro(jogo):
     for i in range(1, len(jogo)+1):
         for j in range(1, len(jogo[0])+1):
             abaJogo.cell(row=i, column=j, value=jogo[i-1][j-1])
-    deletarSheet()
+   
     wb.save('banco.xlsx')
 
 def criarTabuleiro(qtdLinha, qtdColuna):
-    deletarSheet()
+    
     cont = 1
     bombas = bombinhas()
     game = []
