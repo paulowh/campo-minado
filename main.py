@@ -30,6 +30,7 @@ def configuracoes():
 
     return int(dificuldade), int(linhas), int(colunas)
 
+# algo
 
 
 def alterarConfiguracao():
