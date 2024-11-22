@@ -30,9 +30,6 @@ def configuracoes():
 
     return int(dificuldade), int(linhas), int(colunas)
 
-# algo
-
-
 def alterarConfiguracao():
     try:
         wb = load_workbook(filename='banco.xlsx')
