@@ -1,6 +1,4 @@
-#Autores: Gabriela Goto, Paulo Henrique
-#Data: 05/06/2022
-#Quarta Avaliação
+# teste utilizando o GitHub Desktop
 
 import random
 from openpyxl import Workbook, load_workbook
